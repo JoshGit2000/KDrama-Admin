@@ -1,0 +1,30 @@
+'use client'
+
+import { SessionProvider } from 'next-auth/react'
+import { Sidebar } from '@/components/admin/Sidebar'
+import { Header } from '@/components/admin/Header'
+import { Toaster } from '@/components/ui/toaster'
+
+export default function AdminLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <SessionProvider>
+      <div className="flex h-screen overflow-hidden">
+        <Sidebar />
+        
+        <div className="flex flex-1 flex-col overflow-hidden">
+          <Header />
+          
+          <main className="flex-1 overflow-y-auto bg-gray-50 p-6">
+            {children}
+          </main>
+        </div>
+      </div>
+      
+      <Toaster />
+    </SessionProvider>
+  )
+}

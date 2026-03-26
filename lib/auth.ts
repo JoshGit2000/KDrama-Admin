@@ -11,13 +11,19 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async signIn({ user, account, profile }) {
       // Check if user email is in admin whitelist
-      const adminEmails = process.env.ADMIN_EMAILS?.split(',') || []
-      
-      if (user.email && adminEmails.includes(user.email)) {
-        return true
+      const adminEmails = (process.env.ADMIN_EMAILS || '')
+        .split(',')
+        .map((email) => email.trim().toLowerCase())
+        .filter(Boolean)
+      const userEmail = (user.email || profile?.email || '')
+        .trim()
+        .toLowerCase()
+
+      if (!userEmail || adminEmails.length === 0) {
+        return false
       }
-      
-      return false // Reject non-admin users
+
+      return adminEmails.includes(userEmail)
     },
     async jwt({ token, account, user }) {
       if (account) {

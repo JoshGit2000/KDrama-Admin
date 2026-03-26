@@ -1,11 +1,19 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import { signIn } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Film } from 'lucide-react'
 
 export default function LoginPage() {
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    setError(params.get('error'))
+  }, [])
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
       <Card className="w-full max-w-md p-8 space-y-6">
@@ -48,6 +56,12 @@ export default function LoginPage() {
         <p className="text-xs text-center text-gray-500">
           Only authorized admin accounts can access this panel
         </p>
+
+        {error === 'AccessDenied' && (
+          <p className="text-sm text-center text-red-600">
+            Access denied. Your Google account is not in ADMIN_EMAILS.
+          </p>
+        )}
       </Card>
     </div>
   )

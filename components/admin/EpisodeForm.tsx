@@ -258,7 +258,6 @@ export function EpisodeForm({
                     onChange={(e) => setFormData({ ...formData, videoFileId_480p: e.target.value })}
                     placeholder="videos/12345-abc.mp4"
                     className="font-mono text-sm"
-                    readOnly={!!formData.videoFileId_480p}
                   />
                   <Button
                     type="button"
@@ -297,7 +296,6 @@ export function EpisodeForm({
                     onChange={(e) => setFormData({ ...formData, videoFileId_720p: e.target.value })}
                     placeholder="videos/12345-abc.mp4"
                     className="font-mono text-sm"
-                    readOnly={!!formData.videoFileId_720p}
                   />
                   <Button
                     type="button"
@@ -336,7 +334,6 @@ export function EpisodeForm({
                     onChange={(e) => setFormData({ ...formData, videoFileId_1080p: e.target.value })}
                     placeholder="videos/12345-abc.mp4"
                     className="font-mono text-sm"
-                    readOnly={!!formData.videoFileId_1080p}
                   />
                   <Button
                     type="button"

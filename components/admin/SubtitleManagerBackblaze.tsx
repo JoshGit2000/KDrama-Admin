@@ -86,7 +86,6 @@ export function SubtitleManagerBackblaze({ subtitles, onChange }: SubtitleManage
                 onChange={(e) => updateSubtitle('english', e.target.value)}
                 placeholder="subtitles/12345-en.vtt"
                 className="font-mono text-sm"
-                readOnly={!!currentSubtitles[0].fileId}
               />
               <Button
                 type="button"
@@ -146,7 +145,6 @@ export function SubtitleManagerBackblaze({ subtitles, onChange }: SubtitleManage
                 onChange={(e) => updateSubtitle('sinhala', e.target.value)}
                 placeholder="subtitles/12345-si.vtt"
                 className="font-mono text-sm"
-                readOnly={!!currentSubtitles[1].fileId}
               />
               <Button
                 type="button"

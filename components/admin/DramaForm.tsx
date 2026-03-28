@@ -34,6 +34,7 @@ export function DramaForm({ drama, mode }: DramaFormProps) {
     genres: drama?.genres?.join(', ') || '',
     trending: drama?.trending || false,
     new: drama?.new || false,
+    completed: drama?.completed || false,
     thumbnailFileId: drama?.thumbnailFileId || '',
     bannerFileId: drama?.bannerFileId || '',
     totalEpisodes: drama?.totalEpisodes || 0,
@@ -66,6 +67,7 @@ export function DramaForm({ drama, mode }: DramaFormProps) {
         genres: formData.genres.split(',').map(g => g.trim()).filter(Boolean),
         trending: formData.trending,
         new: formData.new,
+        completed: formData.completed,
         thumbnailFileId: formData.thumbnailFileId,
         bannerFileId: formData.bannerFileId,
         totalEpisodes: formData.totalEpisodes,
@@ -224,6 +226,15 @@ export function DramaForm({ drama, mode }: DramaFormProps) {
                 onCheckedChange={(checked) => setFormData({ ...formData, new: checked })}
               />
               <Label htmlFor="new" className="cursor-pointer">New Release</Label>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="completed"
+                checked={formData.completed}
+                onCheckedChange={(checked) => setFormData({ ...formData, completed: checked })}
+              />
+              <Label htmlFor="completed" className="cursor-pointer">Completed</Label>
             </div>
           </div>
         </div>

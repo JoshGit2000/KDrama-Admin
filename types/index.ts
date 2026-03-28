@@ -62,6 +62,7 @@ export interface Drama {
   genres: string[]
   trending: boolean
   new: boolean
+  completed: boolean
   type: 'drama'
   thumbnailFileId: string
   bannerFileId: string

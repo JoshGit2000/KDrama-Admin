@@ -73,6 +73,7 @@ export async function createDrama(
       ...data,
       type: DRAMA_TYPE,
       views: 0,
+      completed: data.completed ?? false,
       totalEpisodes: data.totalEpisodes ?? 0,
       createdAt: now,
       updatedAt: now,

@@ -46,7 +46,7 @@ export function EpisodeForm({
     description: episode?.description || '',
     descriptionSinhala: episode?.descriptionSinhala || '',
     duration: episode?.duration || 0,
-    thumbnailFileId: episode?.thumbnailFileId || '',
+    thumbnailFilename: episode?.thumbnailFilename || '',
     // Changed to fileName for Backblaze
     videoFileId_480p: episode?.videoFileId_480p || '',
     videoFileId_720p: episode?.videoFileId_720p || '',
@@ -75,7 +75,7 @@ export function EpisodeForm({
         description: formData.description,
         descriptionSinhala: formData.descriptionSinhala,
         duration: formData.duration,
-        thumbnailFileId: formData.thumbnailFileId,
+        thumbnailFilename: formData.thumbnailFilename,
         // Changed to fileName for Backblaze
         videoFileId_480p: formData.videoFileId_480p,
         videoFileId_720p: formData.videoFileId_720p,
@@ -208,8 +208,8 @@ export function EpisodeForm({
               <Label>Thumbnail File ID</Label>
               <div className="flex gap-2">
                 <Input
-                  value={formData.thumbnailFileId}
-                  onChange={(e) => setFormData({ ...formData, thumbnailFileId: e.target.value })}
+                  value={formData.thumbnailFilename}
+                  onChange={(e) => setFormData({ ...formData, thumbnailFilename: e.target.value })}
                   placeholder="Google Drive File ID (optional)"
                   className="font-mono text-sm"
                 />
@@ -218,7 +218,7 @@ export function EpisodeForm({
                   variant="outline"
                   onClick={() => setShowUploader(showUploader === 'thumbnail' ? null : 'thumbnail')}
                 >
-                  {formData.thumbnailFileId ? 'Replace' : 'Upload'}
+                  {formData.thumbnailFilename ? 'Replace' : 'Upload'}
                 </Button>
               </div>
 
@@ -226,17 +226,17 @@ export function EpisodeForm({
                 <DriveUploader
                   accept={{ 'image/*': ['.png', '.jpg', '.jpeg', '.webp'] }}
                   onUploadComplete={(file) => {
-                    setFormData({ ...formData, thumbnailFileId: file.fileId })
+                    setFormData({ ...formData, thumbnailFilename: file.fileId })
                     setShowUploader(null)
                   }}
                   label="Upload Thumbnail to Google Drive"
                 />
               )}
 
-              {formData.thumbnailFileId && (
+              {formData.thumbnailFilename && (
                 <div className="rounded-md bg-green-50 p-2 border border-green-200">
                   <p className="text-xs text-green-800 font-mono break-all">
-                    {formData.thumbnailFileId}
+                    {formData.thumbnailFilename}
                   </p>
                 </div>
               )}

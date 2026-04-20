@@ -17,7 +17,7 @@ export interface Episode {
   description?: string
   descriptionSinhala?: string
   duration: number
-  thumbnailFileId?: string
+  thumbnailFilename?: string
   videoFileId_480p?: string  // e.g., "videos/12345-abc.mp4"
   videoFileId_720p?: string
   videoFileId_1080p?: string
@@ -38,8 +38,8 @@ export interface Movie {
   trending: boolean
   new: boolean
   type: 'movie'
-  thumbnailFileId: string
-  bannerFileId: string
+  thumbnailFilename: string
+  bannerFilename: string
   duration: number
   views: number
   videoFileId_480p: string
@@ -64,8 +64,8 @@ export interface Drama {
   new: boolean
   completed: boolean
   type: 'drama'
-  thumbnailFileId: string
-  bannerFileId: string
+  thumbnailFilename: string
+  bannerFilename: string
   totalEpisodes: number
   views: number
   // episodes: Episode[]

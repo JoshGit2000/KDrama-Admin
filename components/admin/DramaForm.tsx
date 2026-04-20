@@ -35,8 +35,8 @@ export function DramaForm({ drama, mode }: DramaFormProps) {
     trending: drama?.trending || false,
     new: drama?.new || false,
     completed: drama?.completed || false,
-    thumbnailFileId: drama?.thumbnailFileId || '',
-    bannerFileId: drama?.bannerFileId || '',
+    thumbnailFilename: drama?.thumbnailFilename || '',
+    bannerFilename: drama?.bannerFilename || '',
     totalEpisodes: drama?.totalEpisodes || 0,
     trailerUrl: drama?.trailerUrl || '',
   })
@@ -53,7 +53,7 @@ export function DramaForm({ drama, mode }: DramaFormProps) {
         throw new Error('Title and description are required')
       }
 
-      if (!formData.thumbnailFileId || !formData.bannerFileId) {
+      if (!formData.thumbnailFilename || !formData.bannerFilename) {
         throw new Error('Thumbnail and banner are required')
       }
 
@@ -68,8 +68,8 @@ export function DramaForm({ drama, mode }: DramaFormProps) {
         trending: formData.trending,
         new: formData.new,
         completed: formData.completed,
-        thumbnailFileId: formData.thumbnailFileId,
-        bannerFileId: formData.bannerFileId,
+        thumbnailFilename: formData.thumbnailFilename,
+        bannerFilename: formData.bannerFilename,
         totalEpisodes: formData.totalEpisodes,
         trailerUrl: formData.trailerUrl,
         type: 'drama',
@@ -256,8 +256,8 @@ export function DramaForm({ drama, mode }: DramaFormProps) {
           <div className="space-y-2">
             <Label>Thumbnail *</Label>
             <Input
-              value={formData.thumbnailFileId}
-              onChange={(e) => setFormData({ ...formData, thumbnailFileId: e.target.value })}
+              value={formData.thumbnailFilename}
+              onChange={(e) => setFormData({ ...formData, thumbnailFilename: e.target.value })}
               placeholder="Google Drive File ID"
               className="font-mono text-sm"
             />
@@ -267,24 +267,24 @@ export function DramaForm({ drama, mode }: DramaFormProps) {
               className="w-full"
               onClick={() => setShowThumbnailUploader(!showThumbnailUploader)}
             >
-              {formData.thumbnailFileId ? 'Replace Thumbnail' : 'Upload Thumbnail'}
+              {formData.thumbnailFilename ? 'Replace Thumbnail' : 'Upload Thumbnail'}
             </Button>
             
             {showThumbnailUploader && (
               <DriveUploader
                 accept={{ 'image/*': ['.png', '.jpg', '.jpeg', '.webp'] }}
                 onUploadComplete={(file) => {
-                  setFormData({ ...formData, thumbnailFileId: file.fileId })
+                  setFormData({ ...formData, thumbnailFilename: file.fileId })
                   setShowThumbnailUploader(false)
                 }}
                 label="Upload Thumbnail"
               />
             )}
 
-            {formData.thumbnailFileId && (
+            {formData.thumbnailFilename && (
               <div className="rounded-md bg-green-50 p-2 border border-green-200">
                 <p className="text-xs text-green-800 font-mono break-all">
-                  {formData.thumbnailFileId}
+                  {formData.thumbnailFilename}
                 </p>
               </div>
             )}
@@ -294,8 +294,8 @@ export function DramaForm({ drama, mode }: DramaFormProps) {
           <div className="space-y-2">
             <Label>Banner *</Label>
             <Input
-              value={formData.bannerFileId}
-              onChange={(e) => setFormData({ ...formData, bannerFileId: e.target.value })}
+              value={formData.bannerFilename}
+              onChange={(e) => setFormData({ ...formData, bannerFilename: e.target.value })}
               placeholder="Google Drive File ID"
               className="font-mono text-sm"
             />
@@ -305,24 +305,24 @@ export function DramaForm({ drama, mode }: DramaFormProps) {
               className="w-full"
               onClick={() => setShowBannerUploader(!showBannerUploader)}
             >
-              {formData.bannerFileId ? 'Replace Banner' : 'Upload Banner'}
+              {formData.bannerFilename ? 'Replace Banner' : 'Upload Banner'}
             </Button>
             
             {showBannerUploader && (
               <DriveUploader
                 accept={{ 'image/*': ['.png', '.jpg', '.jpeg', '.webp'] }}
                 onUploadComplete={(file) => {
-                  setFormData({ ...formData, bannerFileId: file.fileId })
+                  setFormData({ ...formData, bannerFilename: file.fileId })
                   setShowBannerUploader(false)
                 }}
                 label="Upload Banner"
               />
             )}
 
-            {formData.bannerFileId && (
+            {formData.bannerFilename && (
               <div className="rounded-md bg-green-50 p-2 border border-green-200">
                 <p className="text-xs text-green-800 font-mono break-all">
-                  {formData.bannerFileId}
+                  {formData.bannerFilename}
                 </p>
               </div>
             )}

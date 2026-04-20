@@ -1,12 +1,13 @@
 'use client'
 
+import { Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { signIn } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Film } from 'lucide-react'
 
-export default function LoginPage() {
+function LoginContent() {
   const searchParams = useSearchParams()
   const callbackUrl = searchParams?.get('callbackUrl') ?? '/admin/dashboard'
   const error = searchParams?.get('error')
@@ -61,5 +62,17 @@ export default function LoginPage() {
         )}
       </Card>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+        <div className="animate-pulse text-gray-400">Loading...</div>
+      </div>
+    }>
+      <LoginContent />
+    </Suspense>
   )
 }

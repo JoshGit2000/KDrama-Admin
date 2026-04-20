@@ -89,7 +89,7 @@ export async function addEpisodeToDrama(
       totalEpisodes: episodesSnapshot.size,
       updatedAt: now,
     })
-    await bumpCatalogVersion()
+    await bumpCatalogVersion(dramaId, 'update')
     return newEpisode
   } catch (error) {
     console.error('Error adding episode:', error)
@@ -129,7 +129,7 @@ export async function updateEpisode(
     await db.collection('media').doc(dramaId).update({
       updatedAt: new Date().toISOString(),
     })
-    await bumpCatalogVersion()
+    await bumpCatalogVersion(dramaId, 'update')
 
     const updatedDoc = await episodeRef.get()
 
@@ -167,7 +167,7 @@ export async function deleteEpisode(dramaId: string, episodeId: string): Promise
       totalEpisodes: episodesSnapshot.size,
       updatedAt: new Date().toISOString(),
     })
-    await bumpCatalogVersion()
+    await bumpCatalogVersion(dramaId, 'update')
   } catch (error) {
     console.error('Error deleting episode:', error)
     throw new Error('Failed to delete episode')
@@ -212,7 +212,7 @@ export async function batchAddEpisodes(
       totalEpisodes: episodesSnapshot.size,
       updatedAt: now,
     })
-    await bumpCatalogVersion()
+    await bumpCatalogVersion(dramaId, 'update')
   } catch (error) {
     console.error('Error batch adding episodes:', error)
     throw new Error('Failed to batch add episodes')

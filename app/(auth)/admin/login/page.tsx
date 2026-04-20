@@ -8,10 +8,15 @@ import { Film } from 'lucide-react'
 
 export default function LoginPage() {
   const [error, setError] = useState<string | null>(null)
+  const [callbackUrl, setCallbackUrl] = useState<string>('/admin/dashboard')
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     setError(params.get('error'))
+    const urlCallback = params.get('callbackUrl')
+    if (urlCallback) {
+      setCallbackUrl(urlCallback)
+    }
   }, [])
 
   return (
@@ -28,7 +33,7 @@ export default function LoginPage() {
         </div>
 
         <Button
-          onClick={() => signIn('google', { callbackUrl: '/admin/dashboard' })}
+          onClick={() => signIn('google', { callbackUrl })}
           className="w-full"
           size="lg"
         >

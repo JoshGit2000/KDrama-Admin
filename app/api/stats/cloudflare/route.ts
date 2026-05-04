@@ -120,13 +120,13 @@ function dailyRange(days: number) {
 
 function hourlyRange() {
   const now = new Date()
+  // Truncate to exact hour boundary — Cloudflare rejects sub-hour precision
+  now.setMinutes(0, 0, 0)
   const since = new Date(now)
   since.setHours(since.getHours() - 24)
-  // Cloudflare expects ISO datetime strings for hourly filter
-  return {
-    since: since.toISOString().replace(/\.\d{3}Z$/, 'Z'),
-    until: now.toISOString().replace(/\.\d{3}Z$/, 'Z'),
-  }
+  // Format: 2026-05-04T17:00:00Z (no milliseconds, on the hour)
+  const fmt = (d: Date) => d.toISOString().replace(/:\d{2}\.\d{3}Z$/, ':00Z')
+  return { since: fmt(since), until: fmt(now) }
 }
 
 // ── Route ─────────────────────────────────────────────────────────────────────
@@ -167,9 +167,9 @@ export async function GET(request: NextRequest) {
         console.warn('[CF] 24h: hourly query failed, falling back to daily')
       }
 
-      // ── Fallback: use daily data for last 2 days ─────────────────────────
+      // ── Fallback: use today's daily data only (1 day window) ─────────────
       if (!useHourly) {
-        const { since: ds, until: du } = dailyRange(2)
+        const { since: ds, until: du } = dailyRange(1)
         const dJson = await cfFetch(token, DAILY_QUERY, { zoneId, since: ds, until: du })
         if (dJson) {
           rawGroups = dJson.data?.viewer?.zones?.[0]?.httpRequests1dGroups ?? []

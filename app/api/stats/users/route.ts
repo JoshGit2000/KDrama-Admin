@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server'
 import { getAppUserCount } from '@/lib/firebase/firestore/users'
 
-// No server-side caching — Firestore count() costs exactly 1 read regardless
-// of collection size, so there is no benefit to caching it. We always return
-// the live value so the dashboard reflects real-time user registrations.
+// Force Next.js to NEVER cache this route handler.
+// Without this, App Router caches the result server-side regardless of
+// Cache-Control headers — causing the stale count to persist between deploys.
+export const dynamic = 'force-dynamic'
 export async function GET() {
   try {
     const count = await getAppUserCount()

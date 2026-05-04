@@ -120,20 +120,26 @@ function dailyRange(days: number) {
 
 function hourlyRange() {
   const now = new Date()
-  // Truncate to exact hour boundary — Cloudflare rejects sub-hour precision
-  now.setMinutes(0, 0, 0)
-  const since = new Date(now)
+
+  // Truncate to current full hour — Cloudflare rejects sub-hour precision
+  const until = new Date(now)
+  until.setMinutes(0, 0, 0)
+
+  // since = exactly 24 hours before the current full hour
+  // This gives exactly 24 hourly data points: yesterday HH:00 → today HH:00
+  const since = new Date(until)
   since.setHours(since.getHours() - 24)
-  // Format: 2026-05-04T17:00:00Z (no milliseconds, on the hour)
+
   const fmt = (d: Date) => d.toISOString().replace(/:\d{2}\.\d{3}Z$/, ':00Z')
-  return { since: fmt(since), until: fmt(now) }
+  return { since: fmt(since), until: fmt(until) }
 }
+
 
 // ── Route ─────────────────────────────────────────────────────────────────────
 
 export async function GET(request: NextRequest) {
   const period = (request.nextUrl.searchParams.get('period') ?? '7d') as CFPeriod
-  const cacheKey = `cf-v2-${period}`
+  const cacheKey = `cf-v3-${period}`
 
   const cached = cacheGet<CFStats>(cacheKey)
   if (cached) return NextResponse.json(cached)
@@ -167,10 +173,10 @@ export async function GET(request: NextRequest) {
         console.warn('[CF] 24h: hourly query failed, falling back to daily')
       }
 
-      // ── Fallback: use today's daily data only (1 day window) ─────────────
+      // ── Fallback: today's calendar day via daily dataset ───────────────
       if (!useHourly) {
-        const { since: ds, until: du } = dailyRange(1)
-        const dJson = await cfFetch(token, DAILY_QUERY, { zoneId, since: ds, until: du })
+        const today = new Date().toISOString().split('T')[0]
+        const dJson = await cfFetch(token, DAILY_QUERY, { zoneId, since: today, until: today })
         if (dJson) {
           rawGroups = dJson.data?.viewer?.zones?.[0]?.httpRequests1dGroups ?? []
           console.log(`[CF] 24h fallback: daily returned ${rawGroups.length} points`)

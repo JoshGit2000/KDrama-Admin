@@ -70,7 +70,7 @@ export async function createDrama(
 ): Promise<Drama> {
   try {
     const now = new Date().toISOString()
-    const docRef = await db.collection(COLLECTION).add({
+    const payload = {
       ...data,
       type: DRAMA_TYPE,
       views: 0,
@@ -78,14 +78,12 @@ export async function createDrama(
       totalEpisodes: data.totalEpisodes ?? 0,
       createdAt: now,
       updatedAt: now,
-    })
-    
-    const newDoc = await docRef.get()
-    await bumpCatalogVersion(newDoc.id, 'add')
-    return {
-      id: newDoc.id,
-      ...newDoc.data(),
-    } as Drama
+    }
+    const docRef = await db.collection(COLLECTION).add(payload)
+    // Return constructed object — no need for a second .get() read
+    const newDrama: Drama = { id: docRef.id, ...payload } as Drama
+    await bumpCatalogVersion(docRef.id, 'add')
+    return newDrama
   } catch (error) {
     console.error('Error creating drama:', error)
     throw new Error('Failed to create drama')
@@ -98,18 +96,18 @@ export async function createDrama(
 export async function updateDrama(id: string, data: Partial<Drama>): Promise<Drama> {
   try {
     const docRef = db.collection(COLLECTION).doc(id)
+    // Single read to verify existence + type
     const doc = await docRef.get()
     
     if (!doc.exists) {
       throw new Error('Drama not found')
     }
 
-    // Verify it's a drama
     if (doc.data()?.type !== DRAMA_TYPE) {
       throw new Error('Document is not a drama')
     }
 
-    const updateData = {
+    const updateData: Partial<Drama> = {
       ...data,
       updatedAt: new Date().toISOString(),
     }
@@ -118,11 +116,13 @@ export async function updateDrama(id: string, data: Partial<Drama>): Promise<Dra
     delete updateData.type
 
     await docRef.update(updateData)
-    const updatedDoc = await docRef.get()
     await bumpCatalogVersion(id, 'update')
+
+    // Return merged object — no second .get() read needed
     return {
-      id: updatedDoc.id,
-      ...updatedDoc.data(),
+      id,
+      ...doc.data(),
+      ...updateData,
     } as Drama
   } catch (error) {
     console.error('Error updating drama:', error)

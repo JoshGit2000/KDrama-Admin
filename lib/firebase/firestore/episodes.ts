@@ -1,6 +1,7 @@
 import { db } from '../admin'
 import { bumpCatalogVersion } from './settings'
 import { Episode } from '@/types'
+import admin from 'firebase-admin'
 
 /**
  * Get all episodes for a drama (from subcollection)
@@ -71,22 +72,16 @@ export async function addEpisodeToDrama(
         updatedAt: now,
       })
 
-    // Get the newly created episode
-    const newEpisodeDoc = await episodeRef.get()
     const newEpisode = {
-      id: newEpisodeDoc.id,
-      ...newEpisodeDoc.data(),
+      id: episodeRef.id,
+      ...episode,
+      createdAt: now,
+      updatedAt: now,
     } as Episode
 
-    // Update drama's totalEpisodes count
-    const episodesSnapshot = await db
-      .collection('media')
-      .doc(dramaId)
-      .collection('episodes')
-      .get()
-
+    // Atomically increment totalEpisodes — no read needed
     await db.collection('media').doc(dramaId).update({
-      totalEpisodes: episodesSnapshot.size,
+      totalEpisodes: admin.firestore.FieldValue.increment(1),
       updatedAt: now,
     })
     await bumpCatalogVersion(dramaId, 'update')
@@ -131,11 +126,11 @@ export async function updateEpisode(
     })
     await bumpCatalogVersion(dramaId, 'update')
 
-    const updatedDoc = await episodeRef.get()
-
+    // Return merged object — no second .get() needed
     return {
-      id: updatedDoc.id,
-      ...updatedDoc.data(),
+      id: episodeId,
+      ...episodeDoc.data(),
+      ...updateData,
     } as Episode
   } catch (error) {
     console.error('Error updating episode:', error)
@@ -156,15 +151,9 @@ export async function deleteEpisode(dramaId: string, episodeId: string): Promise
       .doc(episodeId)
       .delete()
 
-    // Update drama's totalEpisodes count
-    const episodesSnapshot = await db
-      .collection('media')
-      .doc(dramaId)
-      .collection('episodes')
-      .get()
-
+    // Atomically decrement totalEpisodes — no read needed
     await db.collection('media').doc(dramaId).update({
-      totalEpisodes: episodesSnapshot.size,
+      totalEpisodes: admin.firestore.FieldValue.increment(-1),
       updatedAt: new Date().toISOString(),
     })
     await bumpCatalogVersion(dramaId, 'update')

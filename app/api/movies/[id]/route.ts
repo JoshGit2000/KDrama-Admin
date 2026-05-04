@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getMovieById, updateMovie, deleteMovie } from '@/lib/firebase/firestore/movies'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
+import { cacheInvalidate, CACHE_KEY_MOVIES } from '@/lib/cache'
 
 export async function GET(
   request: NextRequest,
@@ -36,6 +37,9 @@ export async function PUT(
 
     const data = await request.json()
     const movie = await updateMovie(params.id, data)
+
+    // ── Invalidate list cache ────────────────────────────────────────────────
+    cacheInvalidate(CACHE_KEY_MOVIES)
     
     return NextResponse.json(movie)
   } catch (error) {
@@ -58,6 +62,9 @@ export async function DELETE(
     }
 
     await deleteMovie(params.id)
+
+    // ── Invalidate list cache ────────────────────────────────────────────────
+    cacheInvalidate(CACHE_KEY_MOVIES)
     
     return NextResponse.json({ success: true })
   } catch (error) {

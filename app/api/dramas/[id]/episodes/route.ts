@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getEpisodesByDramaId, addEpisodeToDrama } from '@/lib/firebase/firestore/episodes'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
+import { cacheInvalidate, CACHE_KEY_DRAMAS } from '@/lib/cache'
 
 export async function GET(
   request: NextRequest,
@@ -31,6 +32,9 @@ export async function POST(
 
     const data = await request.json()
     const episode = await addEpisodeToDrama(params.id, data)
+
+    // ── Invalidate dramas cache (totalEpisodes changed) ──────────────────────
+    cacheInvalidate(CACHE_KEY_DRAMAS)
     
     return NextResponse.json(episode, { status: 201 })
   } catch (error) {

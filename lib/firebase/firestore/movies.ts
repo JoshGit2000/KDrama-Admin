@@ -70,20 +70,18 @@ export async function createMovie(
 ): Promise<Movie> {
   try {
     const now = new Date().toISOString()
-    const docRef = await db.collection(COLLECTION).add({
+    const payload = {
       ...data,
       type: MOVIE_TYPE,
       views: 0,
       createdAt: now,
       updatedAt: now,
-    })
-
-    const newDoc = await docRef.get()
-    await bumpCatalogVersion(newDoc.id, 'add')
-    return {
-      id: newDoc.id,
-      ...newDoc.data(),
-    } as Movie
+    }
+    const docRef = await db.collection(COLLECTION).add(payload)
+    // Return constructed object — no need for a second .get() read
+    const newMovie: Movie = { id: docRef.id, ...payload } as Movie
+    await bumpCatalogVersion(docRef.id, 'add')
+    return newMovie
   } catch (error) {
     console.error('Error creating movie:', error)
     throw new Error('Failed to create movie')
@@ -96,18 +94,18 @@ export async function createMovie(
 export async function updateMovie(id: string, data: Partial<Movie>): Promise<Movie> {
   try {
     const docRef = db.collection(COLLECTION).doc(id)
+    // Single read to verify existence + type
     const doc = await docRef.get()
 
     if (!doc.exists) {
       throw new Error('Movie not found')
     }
 
-    // Verify it's a movie
     if (doc.data()?.type !== MOVIE_TYPE) {
       throw new Error('Document is not a movie')
     }
 
-    const updateData = {
+    const updateData: Partial<Movie> = {
       ...data,
       updatedAt: new Date().toISOString(),
     }
@@ -116,11 +114,13 @@ export async function updateMovie(id: string, data: Partial<Movie>): Promise<Mov
     delete updateData.type
 
     await docRef.update(updateData)
-    const updatedDoc = await docRef.get()
     await bumpCatalogVersion(id, 'update')
+
+    // Return merged object — no second .get() read needed
     return {
-      id: updatedDoc.id,
-      ...updatedDoc.data(),
+      id,
+      ...doc.data(),
+      ...updateData,
     } as Movie
   } catch (error) {
     console.error('Error updating movie:', error)

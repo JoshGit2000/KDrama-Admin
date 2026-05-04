@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getDramaById, updateDrama, deleteDrama } from '@/lib/firebase/firestore/dramas'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
+import { cacheInvalidate, CACHE_KEY_DRAMAS } from '@/lib/cache'
 
 export async function GET(
   request: NextRequest,
@@ -36,6 +37,9 @@ export async function PUT(
 
     const data = await request.json()
     const drama = await updateDrama(params.id, data)
+
+    // ── Invalidate list cache ────────────────────────────────────────────────
+    cacheInvalidate(CACHE_KEY_DRAMAS)
     
     return NextResponse.json(drama)
   } catch (error) {
@@ -58,6 +62,9 @@ export async function DELETE(
     }
 
     await deleteDrama(params.id)
+
+    // ── Invalidate list cache ────────────────────────────────────────────────
+    cacheInvalidate(CACHE_KEY_DRAMAS)
     
     return NextResponse.json({ success: true })
   } catch (error) {

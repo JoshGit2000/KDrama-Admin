@@ -77,20 +77,26 @@ export default function MoviesPage() {
   const handleDelete = async () => {
     if (!deleteId) return
 
+    // ── Optimistic update — remove from UI immediately ───────────────────────
+    const previousMovies = movies
+    setMovies(prev => prev.filter(m => m.id !== deleteId))
+    setDeleteId(null)
+
     try {
       const response = await fetch(`/api/movies/${deleteId}`, {
         method: 'DELETE',
       })
 
-      if (!response.ok) throw new Error('Failed to delete')
+      if (!response.ok) {
+        // Rollback on failure
+        setMovies(previousMovies)
+        throw new Error('Failed to delete')
+      }
 
       toast({
         title: 'Success',
         description: 'Movie deleted successfully',
       })
-
-      setMovies(movies.filter(m => m.id !== deleteId))
-      setDeleteId(null)
     } catch (error) {
       toast({
         title: 'Error',
@@ -99,6 +105,7 @@ export default function MoviesPage() {
       })
     }
   }
+
 
   return (
     <div className="space-y-6">

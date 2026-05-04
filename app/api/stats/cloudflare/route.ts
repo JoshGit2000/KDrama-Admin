@@ -67,9 +67,17 @@ async function cfFetch(token: string, query: string, variables: Record<string,st
     headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({ query, variables }),
   })
-  if (!res.ok) { console.error('[CF] HTTP', res.status); return null }
+  if (!res.ok) {
+    const body = await res.text()
+    console.error('[CF] HTTP', res.status, body)
+    return null
+  }
   const json = await res.json()
-  if (json.errors?.length) { console.error('[CF] GraphQL errors:', JSON.stringify(json.errors)); return null }
+  if (json.errors?.length) {
+    console.error('[CF] GraphQL errors:', JSON.stringify(json.errors))
+    console.error('[CF] Variables were:', JSON.stringify(variables))
+    return null
+  }
   return json
 }
 
@@ -87,7 +95,7 @@ const DAILY_QUERY = `
 `
 
 const HOURLY_QUERY = `
-  query($zoneId: String!, $since: Time!, $until: Time!) {
+  query($zoneId: String!, $since: String!, $until: String!) {
     viewer { zones(filter: { zoneTag: $zoneId }) {
       httpRequests1hGroups(limit: 25 filter: { datetimeHour_geq: $since, datetimeHour_leq: $until } orderBy: [datetimeHour_ASC]) {
         dimensions { datetimeHour }

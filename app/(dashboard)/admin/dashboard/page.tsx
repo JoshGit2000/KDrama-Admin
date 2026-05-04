@@ -73,16 +73,16 @@ function StatCard({ title, value, icon, accent, ic, loading, sub, na }: { title:
   return (
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 hover:shadow-md transition-shadow duration-200">
       <div className="flex items-start justify-between">
-        <div className="min-w-0 flex-1">
-          <p className="text-[10px] font-semibold uppercase tracking-widest text-gray-400">{title}</p>
-          <div className="mt-2">
-            {loading ? <div className="h-8 w-24 bg-gray-100 rounded-lg animate-pulse"/> :
+        <div className="min-w-0 flex-1 pr-2">
+          <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-400 truncate">{title}</p>
+          <div className="mt-1.5">
+            {loading ? <div className="h-8 w-20 bg-gray-100 rounded-lg animate-pulse"/> :
              na ? <span className="text-3xl font-bold text-gray-300">—</span> :
-             <span className="text-3xl font-bold text-gray-900">{typeof value==='number'?<AnimCount value={value}/>:value}</span>}
+             <span className="text-3xl font-bold text-gray-900 break-all">{typeof value==='number'?<AnimCount value={value}/>:value}</span>}
           </div>
           {sub&&!loading&&!na&&<p className="text-xs text-gray-400 mt-1">{sub}</p>}
         </div>
-        <div className={`${accent} rounded-xl p-3 ml-3`}><div className={ic}>{icon}</div></div>
+        <div className={`${accent} rounded-xl p-2.5 flex-shrink-0`}><div className={ic}>{icon}</div></div>
       </div>
     </div>
   )
@@ -196,15 +196,19 @@ export default function DashboardPage() {
         <StatCard title="Trending"    value={media.trending} icon={<TrendingUp className="h-5 w-5"/>} accent="bg-emerald-50" ic="text-emerald-500" loading={mLoading} sub="Movies + Dramas"/>
       </div>
 
-      {/* Cloudflare summary cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-7 gap-4">
-        <StatCard title="Requests"        value={cf?fmtN(cf.totals.requests):null}                             icon={<Globe className="h-5 w-5"/>}       accent="bg-indigo-50"  ic="text-indigo-500"  loading={cfLoad} na={cfNa} sub={periodLabel}/>
-        <StatCard title="Bandwidth"       value={cf?fmtBytes(cf.totals.bytes):null}                            icon={<ArrowUpRight className="h-5 w-5"/>} accent="bg-sky-50"     ic="text-sky-500"     loading={cfLoad} na={cfNa} sub={periodLabel}/>
-        <StatCard title="Cached"          value={cf?fmtN(cf.totals.cachedRequests):null}                       icon={<Zap className="h-5 w-5"/>}          accent="bg-emerald-50" ic="text-emerald-500" loading={cfLoad} na={cfNa} sub="From edge"/>
-        <StatCard title="Cache Hit"       value={cf?`${cf.totals.cacheHitRate}%`:null}                         icon={<Zap className="h-5 w-5"/>}          accent="bg-teal-50"    ic="text-teal-500"    loading={cfLoad} na={cfNa}/>
-        <StatCard title="Unique Visitors" value={cf?fmtN(cf.totals.uniqueVisitors):null}                       icon={<Users className="h-5 w-5"/>}        accent="bg-purple-50"  ic="text-purple-500"  loading={cfLoad} na={cfNa} sub={periodLabel}/>
-        <StatCard title="Threats"         value={cf?fmtN(cf.totals.threats):null}                              icon={<ShieldAlert className="h-5 w-5"/>}  accent="bg-yellow-50"  ic="text-yellow-500"  loading={cfLoad} na={cfNa} sub="Blocked"/>
-        <StatCard title="Errors"          value={cf?fmtN(cf.totals.errors4xx+cf.totals.errors5xx):null}        icon={<AlertTriangle className="h-5 w-5"/>} accent="bg-rose-50"   ic="text-rose-500"    loading={cfLoad} na={cfNa} sub="4xx + 5xx"/>
+      {/* Cloudflare summary — row 1: traffic metrics */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <StatCard title="Requests"    value={cf?fmtN(cf.totals.requests):null}          icon={<Globe className="h-5 w-5"/>}       accent="bg-indigo-50"  ic="text-indigo-500"  loading={cfLoad} na={cfNa} sub={periodLabel}/>
+        <StatCard title="Bandwidth"   value={cf?fmtBytes(cf.totals.bytes):null}          icon={<ArrowUpRight className="h-5 w-5"/>} accent="bg-sky-50"     ic="text-sky-500"     loading={cfLoad} na={cfNa} sub={periodLabel}/>
+        <StatCard title="Cached"      value={cf?fmtN(cf.totals.cachedRequests):null}     icon={<Zap className="h-5 w-5"/>}          accent="bg-emerald-50" ic="text-emerald-500" loading={cfLoad} na={cfNa} sub="From edge"/>
+        <StatCard title="Cache Hit"   value={cf?`${cf.totals.cacheHitRate}%`:null}       icon={<Zap className="h-5 w-5"/>}          accent="bg-teal-50"    ic="text-teal-500"    loading={cfLoad} na={cfNa}/>
+      </div>
+
+      {/* Cloudflare summary — row 2: visitors, security, errors */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <StatCard title="Unique Visitors" value={cf?fmtN(cf.totals.uniqueVisitors):null} icon={<Users className="h-5 w-5"/>}       accent="bg-purple-50"  ic="text-purple-500"  loading={cfLoad} na={cfNa} sub={periodLabel}/>
+        <StatCard title="Threats"         value={cf?fmtN(cf.totals.threats):null}         icon={<ShieldAlert className="h-5 w-5"/>}  accent="bg-yellow-50"  ic="text-yellow-500"  loading={cfLoad} na={cfNa} sub="Blocked"/>
+        <StatCard title="Errors"          value={cf?fmtN(cf.totals.errors4xx+cf.totals.errors5xx):null} icon={<AlertTriangle className="h-5 w-5"/>} accent="bg-rose-50" ic="text-rose-500" loading={cfLoad} na={cfNa} sub="4xx + 5xx"/>
       </div>
 
       {/* Charts row 1 – Requests + Bandwidth */}

@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getMovieById, updateMovie, deleteMovie } from '@/lib/firebase/firestore/movies'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { isMobileOrSessionAuthed } from '@/lib/mobile-auth'
 import { cacheInvalidate, CACHE_KEY_MOVIES } from '@/lib/cache'
 
 export async function GET(
@@ -24,19 +23,15 @@ export async function GET(
   }
 }
 
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+async function handleUpdate(request: NextRequest, id: string) {
   try {
-    const session = await getServerSession(authOptions)
-    
-    if (!session) {
+    const authed = await isMobileOrSessionAuthed(request)
+    if (!authed) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const data = await request.json()
-    const movie = await updateMovie(params.id, data)
+    const movie = await updateMovie(id, data)
 
     // ── Invalidate list cache ────────────────────────────────────────────────
     cacheInvalidate(CACHE_KEY_MOVIES)
@@ -50,14 +45,27 @@ export async function PUT(
   }
 }
 
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  return handleUpdate(request, params.id)
+}
+
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  return handleUpdate(request, params.id)
+}
+
 export async function DELETE(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession(authOptions)
-    
-    if (!session) {
+    const authed = await isMobileOrSessionAuthed(request)
+    if (!authed) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 

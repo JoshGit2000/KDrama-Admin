@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAllMovies, createMovie } from '@/lib/firebase/firestore/movies'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { isMobileOrSessionAuthed } from '@/lib/mobile-auth'
 import { cacheGet, cacheSet, cacheInvalidate, CACHE_KEY_MOVIES } from '@/lib/cache'
 import { Movie } from '@/types'
 
@@ -27,9 +26,9 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
-    
-    if (!session) {
+    const authed = await isMobileOrSessionAuthed(request)
+
+    if (!authed) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 

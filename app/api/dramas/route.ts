@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAllDramas, createDrama } from '@/lib/firebase/firestore/dramas'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
+import { isMobileOrSessionAuthed } from '@/lib/mobile-auth'
 import { cacheGet, cacheSet, cacheInvalidate, CACHE_KEY_DRAMAS } from '@/lib/cache'
 import { Drama } from '@/types'
 
@@ -34,9 +33,9 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    const authed = await isMobileOrSessionAuthed(request)
 
-    if (!session) {
+    if (!authed) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 

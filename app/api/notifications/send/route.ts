@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth'
 import admin from '@/lib/firebase/admin'
 import { db } from '@/lib/firebase/admin'
 import { createNotification, NotificationPayload } from '@/lib/firebase/firestore/notifications'
+import { isMobileOrSessionAuthed } from '@/lib/mobile-auth'
 
 /**
  * POST /api/notifications/send
@@ -146,17 +147,18 @@ export async function POST(req: NextRequest) {
 
 /**
  * GET /api/notifications/send
- * Returns list of sent notifications for the admin panel.
+ * Returns list of sent notifications — accepts both NextAuth session and mobile secret.
  */
-export async function GET() {
-  const session = await getServerSession()
-  if (!session?.user?.email) {
+export async function GET(req: NextRequest) {
+  const authed = await isMobileOrSessionAuthed(req)
+  if (!authed) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   const { getAllNotifications } = await import('@/lib/firebase/firestore/notifications')
   const notifications = await getAllNotifications()
-  return NextResponse.json({ notifications })
+  // Return array directly (not wrapped) so mobile clients don't need to unwrap
+  return NextResponse.json(notifications)
 }
 
 /**
